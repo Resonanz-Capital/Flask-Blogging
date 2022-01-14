@@ -61,7 +61,7 @@ class PostProcessor(object):
 
     @classmethod
     def is_author(cls, post, user):
-        return user.get_id() == u''+str(post['user_id'])
+        return user.is_employee
 
     @classmethod
     def process(cls, post, render=True):

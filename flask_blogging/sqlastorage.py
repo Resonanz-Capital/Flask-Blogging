@@ -418,9 +418,6 @@ class SQLAStorage(Storage):
             )
             filters.append(user_filter)
 
-        draft_filter = self._post_table.c.draft == 1 if include_draft else \
-            self._post_table.c.draft == 0
-        filters.append(draft_filter)
         sql_filter = sqla.and_(*filters)
         return sql_filter
 

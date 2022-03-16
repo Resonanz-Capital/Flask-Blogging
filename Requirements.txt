@@ -1,3 +1,4 @@
+flask-sphinx-themes==1.0.2
 Flask
 Flask-WTF>=0.14.0
 Flask-Login

@@ -2,6 +2,8 @@
 
 import random
 
+from feedwerk._compat import unichr
+
 
 def get_random_unicode(length):
 

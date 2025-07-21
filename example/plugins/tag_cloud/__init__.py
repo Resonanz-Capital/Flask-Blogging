@@ -10,8 +10,8 @@ def get_tag_data(sqla_storage):
         tag_posts_table = sqla_storage.tag_posts_table
         tag_table = sqla_storage.tag_table
 
-        tag_cloud_stmt = sqla.select([
-            tag_table.c.text,func.count(tag_posts_table.c.tag_id)]).group_by(
+        tag_cloud_stmt = sqla.select(
+            tag_table.c.text,func.count(tag_posts_table.c.tag_id)).group_by(
             tag_posts_table.c.tag_id
         ).where(tag_table.c.id == tag_posts_table.c.tag_id).limit(10)
         tag_cloud = conn.execute(tag_cloud_stmt).fetchall()

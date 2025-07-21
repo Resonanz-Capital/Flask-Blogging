@@ -171,7 +171,7 @@ class SQLAStorage(Storage):
         with self._engine.begin() as conn:
             try:
                 if post_id is not None:  # validate post_id
-                    exists_statement = sqla.select([self._post_table]).where(
+                    exists_statement = sqla.select(self._post_table).where(
                         self._post_table.c.id == post_id)
                     exists = \
                         conn.execute(exists_statement).fetchone() is not None
@@ -243,7 +243,7 @@ class SQLAStorage(Storage):
         post_id = _as_int(post_id)
         with self._engine.begin() as conn:
             try:
-                post_statement = sqla.select([self._post_table]) \
+                post_statement = sqla.select(self._post_table) \
                     .where(self._post_table.c.id == post_id) \
                     .alias('post')
 
@@ -254,7 +254,7 @@ class SQLAStorage(Storage):
 
                 # Note this will retrieve one row per tag
                 all_rows = conn.execute(
-                    sqla.select([joined_statement])
+                    sqla.select(joined_statement)
                 ).fetchall()
                 r = self._serialise_posts_and_tags_from_joined_rows(
                     all_rows
@@ -294,7 +294,7 @@ class SQLAStorage(Storage):
             try:
                 # post_statement ensures the correct posts are selected
                 # in the correct order
-                post_statement = sqla.select([self._post_table])
+                post_statement = sqla.select(self._post_table)
                 post_filter = self._get_filter(
                     tag, user_id, include_draft, conn
                 )
@@ -322,7 +322,7 @@ class SQLAStorage(Storage):
                     sqla.desc(joined_statement.c.post_post_date) if recent \
                     else joined_statement.c.post_post_date
 
-                joined_statement = sqla.select([joined_statement]) \
+                joined_statement = sqla.select(joined_statement) \
                     .order_by(joined_ordering)
                 all_rows = conn.execute(joined_statement).fetchall()
                 result = \
@@ -348,7 +348,7 @@ class SQLAStorage(Storage):
         result = 0
         with self._engine.begin() as conn:
             try:
-                count_statement = sqla.select([sqla.func.count()]). \
+                count_statement = sqla.select(sqla.func.count()). \
                     select_from(self._post_table)
                 sql_filter = self._get_filter(tag, user_id, include_draft,
                                               conn)
@@ -400,7 +400,7 @@ class SQLAStorage(Storage):
         filters = []
         if tag:
             tag = tag.upper()
-            tag_statement = sqla.select([self._tag_table.c.id]).where(
+            tag_statement = sqla.select(self._tag_table.c.id).where(
                 self._tag_table.c.text == tag)
             tag_result = conn.execute(tag_statement).fetchone()
             if tag_result is not None:
@@ -487,7 +487,7 @@ class SQLAStorage(Storage):
 
     def _save_user_post(self, user_id, post_id, conn):
         user_id = str(user_id)
-        statement = sqla.select([self._user_posts_table]).where(
+        statement = sqla.select(self._user_posts_table).where(
             self._user_posts_table.c.post_id == post_id)
         result = conn.execute(statement).fetchone()
         if result is None:

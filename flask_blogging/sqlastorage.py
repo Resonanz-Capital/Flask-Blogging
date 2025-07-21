@@ -224,7 +224,7 @@ class SQLAStorage(Storage):
             post_id=joined_row.post_id,
             title=joined_row.post_title,
             text=joined_row.post_text,
-            post_date=joined_row.post_post_date,
+            post_date=joined_row.post_date,
             last_modified_date=joined_row.post_last_modified_date,
             draft=joined_row.post_draft,
             user_id=joined_row.user_posts_user_id
@@ -319,8 +319,8 @@ class SQLAStorage(Storage):
                     .alias('join')
 
                 joined_ordering = \
-                    sqla.desc(joined_statement.c.post_post_date) if recent \
-                    else joined_statement.c.post_post_date
+                    sqla.desc(joined_statement.c.post_date) if recent \
+                    else joined_statement.c.post_date
 
                 joined_statement = sqla.select(joined_statement) \
                     .order_by(joined_ordering)

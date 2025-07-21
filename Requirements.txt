@@ -12,3 +12,4 @@ blinker==1.9.0
 python-slugify
 shortuuid
 feedwerk==1.2.0
+pymdown-extensions==10.16

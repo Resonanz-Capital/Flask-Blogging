@@ -55,7 +55,17 @@ class PostProcessor(object):
 
     @classmethod
     def render_text(cls, post):
-        md = markdown.Markdown(extensions=cls.all_extensions())
+        # Filter out MathJaxExtension instances and keep other extensions
+        other_extensions = [ext for ext in cls.all_extensions() if not isinstance(ext, MathJaxExtension)]
+
+        md = markdown.Markdown(
+            extensions=['pymdownx.arithmatex'] + other_extensions,
+            extension_configs={
+                'pymdownx.arithmatex': {
+                    'generic': True
+                }
+            }
+        )
         post["rendered_text"] = md.convert(post["text"])
         post["meta"] = md.Meta
 

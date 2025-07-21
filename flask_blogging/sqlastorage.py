@@ -243,14 +243,13 @@ class SQLAStorage(Storage):
         post_id = _as_int(post_id)
         with self._engine.begin() as conn:
             try:
-                post_statement = sqla.select(self._post_table) \
+                post_subquery = sqla.select(self._post_table) \
                     .where(self._post_table.c.id == post_id) \
-                    .alias('post')
+                    .subquery('post')
 
-                joined_statement = post_statement.join(self._tag_posts_table) \
+                joined_statement = post_subquery.join(self._tag_posts_table) \
                     .join(self._tag_table) \
-                    .join(self._user_posts_table) \
-                    .alias('join')
+                    .join(self._user_posts_table)
 
                 # Note this will retrieve one row per tag
                 all_rows = conn.execute(
@@ -269,24 +268,6 @@ class SQLAStorage(Storage):
                   user_id=None, include_draft=False):
         """
         Get posts given by filter criteria
-
-        :param count: The number of posts to retrieve (default 10)
-        :type count: int
-        :param offset: The number of posts to offset (default 0)
-        :type offset: int
-        :param recent: Order by recent posts or not
-        :type recent: bool
-        :param tag: Filter by a specific tag
-        :type tag: str
-        :param user_id: Filter by a specific user
-        :type user_id: str
-        :param include_draft: Whether to include posts marked as draft or not
-        :type include_draft: bool
-
-        :return: A list of posts, with each element a dict containing values
-         for the following keys: (title, text, draft, post_date,
-         last_modified_date). If count is ``None``, then all the posts are
-         returned.
         """
         user_id = str(user_id) if user_id else user_id
 
@@ -308,23 +289,22 @@ class SQLAStorage(Storage):
 
                 post_ordering = \
                     sqla.desc(self._post_table.c.post_date) if recent \
-                    else self._post_table.c.post_date
+                        else self._post_table.c.post_date
                 post_statement = post_statement.order_by(post_ordering)
-                post_statement = post_statement.alias('post')
+                post_subquery = post_statement.subquery('post')
 
                 # joined_statement ensures other data is retrieved
-                joined_statement = post_statement.join(self._tag_posts_table) \
+                joined_statement = post_subquery.join(self._tag_posts_table) \
                     .join(self._tag_table) \
-                    .join(self._user_posts_table) \
-                    .alias('join')
+                    .join(self._user_posts_table)
 
                 joined_ordering = \
-                    sqla.desc(joined_statement.c.post_date) if recent \
-                    else joined_statement.c.post_date
+                    sqla.desc(post_subquery.c.post_date) if recent \
+                        else post_subquery.c.post_date
 
-                joined_statement = sqla.select(joined_statement) \
+                final_statement = sqla.select(joined_statement) \
                     .order_by(joined_ordering)
-                all_rows = conn.execute(joined_statement).fetchall()
+                all_rows = conn.execute(final_statement).fetchall()
                 result = \
                     self._serialise_posts_and_tags_from_joined_rows(all_rows)
             except Exception as e:

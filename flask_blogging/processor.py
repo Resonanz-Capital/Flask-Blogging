@@ -62,7 +62,9 @@ class PostProcessor(object):
             extensions=['pymdownx.arithmatex'] + other_extensions,
             extension_configs={
                 'pymdownx.arithmatex': {
-                    'generic': True
+                    # Require explicit \(...\) or \[...\] delimiters so plain dollar signs render normally.
+                    'inline_syntax': ['round'],
+                    'block_syntax': ['square', 'begin']
                 }
             }
         )
